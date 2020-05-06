@@ -1,0 +1,105 @@
+<html>
+
+<head>
+<script src="https://code.highcharts.com/stock/highstock.js"></script>
+<script src="https://code.highcharts.com/stock/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/stock/modules/export-data.js"></script>
+</head>
+
+<script>
+var seriesOptions = [],
+  seriesCounter = 0,
+  names_index=['F00000Y1ZY', 'F00000NNHK', 'F000000S68', 'F000000S6A', 'F000000S66'];
+  names = ['Dividend', 'Equity', 'Portfolio','Growth','Income'];
+
+/**
+ * Create the chart when all data is loaded
+ * @returns {undefined}
+ */
+function createChart() {
+
+  Highcharts.stockChart('container', {
+
+    rangeSelector: {
+      selected: 4
+    },
+
+    yAxis: {
+      labels: {
+        formatter: function() {
+          return (this.value > 0 ? ' + ' : '') + this.value + '%';
+        }
+      },
+      plotLines: [{
+        value: 0,
+        width: 2,
+        color: 'silver'
+      }]
+    },
+
+    plotOptions: {
+      series: {
+        compare: 'percent',
+        showInNavigator: true
+      }
+    },
+
+    tooltip: {
+      pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>',
+      valueDecimals: 2,
+      split: true
+    },
+
+    series: seriesOptions
+  });
+}
+
+function success(data) {
+  var name = this.url.match(/(F00000Y1ZY|F00000NNHK|F000000S68|F000000S6A|F000000S66)/)[0].toUpperCase();
+  var i = names_index.indexOf(name);
+  seriesOptions[i] = {
+    name: names[i],
+    data: data
+  };
+
+  // As we're loading the data asynchronously, we don't know what order it
+  // will arrive. So we keep a counter and create the chart when all the data is loaded.
+  seriesCounter += 1;
+
+  if (seriesCounter === names.length) {
+    createChart();
+  }
+}
+
+Highcharts.getJSON(
+  'stocks/F00000Y1ZY',
+  //'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/msft-c.json',
+  success
+);
+
+Highcharts.getJSON(
+  'stocks/F00000NNHK',
+  //'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/aapl-c.json',
+  success
+);
+Highcharts.getJSON(
+  'stocks/F000000S68',
+  //'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/goog-c.json',
+  success
+);
+Highcharts.getJSON(
+  'stocks/F000000S6A',
+  success
+);
+Highcharts.getJSON(
+  'stocks/F000000S66',
+  success
+);
+
+</script>
+<body>
+<div id="container" style="height: 400px; min-width: 310px"></div>
+</body>
+
+
+</html>
